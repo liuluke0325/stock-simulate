@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票複利試算</title>
+<style>
+  :root{
+    --bg:#101418; --panel:#171C22; --line:#2A323C;
+    --text:#E8EAED; --dim:#8B949E; --red:#F0475A; --gold:#E8B448;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+    font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;padding:24px 20px}
+  .wrap{max-width:860px;margin:0 auto}
+  .eyebrow{font-size:12px;color:var(--red);letter-spacing:3px;margin-bottom:4px}
+  h1{margin:0 0 20px;font-size:22px;font-weight:600}
+  .inputs{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .inputs label{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+  .inputs .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
+  .field{display:flex;align-items:center;background:var(--panel);
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+  .field input{background:transparent;border:none;outline:none;color:var(--text);
+    font-size:16px;width:100%;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+  .field .suffix{color:var(--dim);font-size:13px;margin-left:6px;white-space:nowrap}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .stat .k{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px}
+  .stat .v{font-size:18px;font-weight:600;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+  .v.red{color:var(--red)} .v.gold{color:var(--gold)}
+  .slider-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-bottom:20px}
+  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:4px}
+  .slider-head .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
+  .slider-head .val{font-size:16px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+  .slider-head .val small{color:var(--dim);font-size:13px;font-weight:400}
+  input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:28px}
+  .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:2px}
+  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 8px 8px}
+  #chart{width:100%;display:block;touch-action:none;cursor:crosshair}
+  .legend{display:flex;gap:18px;padding:6px 12px 8px;font-size:12px;color:var(--dim)}
+  .note{font-size:11px;color:var(--dim);margin-top:14px;line-height:1.6}
+  #tip{position:fixed;pointer-events:none;background:var(--bg);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;font-size:12px;display:none;z-index:10;
+    font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">COMPOUND · 月複利</div>
+  <h1>股票複利試算</h1>
+
+  <div class="inputs">
+    <label><span class="lbl">期初本金</span>
+      <div class="field"><input id="principal" type="number" value="100000" step="10000" min="0"><span class="suffix">元</span></div>
+    </label>
+    <label><span class="lbl">每月投入</span>
+      <div class="field"><input id="monthly" type="number" value="10000" step="1000" min="0"><span class="suffix">元/月</span></div>
+    </label>
+    <label><span class="lbl">年化報酬率</span>
+      <div class="field"><input id="rate" type="number" value="8" step="0.5" min="0"><span class="suffix">%</span></div>
+    </label>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">期末總值</div><div class="v red" id="sVal">–</div></div>
+    <div class="stat"><div class="k">累計投入</div><div class="v gold" id="sInv">–</div></div>
+    <div class="stat"><div class="k">複利獲利</div><div class="v red" id="sGain">–</div></div>
+    <div class="stat"><div class="k">報酬率</div><div class="v red" id="sRoi">–</div></div>
+  </div>
+
+  <div class="slider-box">
+    <div class="slider-head">
+      <span class="lbl">投資期間(拖拉調整)</span>
+      <span class="val" id="mLabel"></span>
+    </div>
+    <input id="months" type="range" min="1" max="480" value="120">
+    <div class="ticks"><span>1 月</span><span>10 年</span><span>20 年</span><span>30 年</span><span>40 年</span></div>
+  </div>
+
+  <div class="chart-box">
+    <svg id="chart" height="320" preserveAspectRatio="none"></svg>
+    <div class="legend">
+      <span><span style="color:var(--red)">━</span> 複利總值</span>
+      <span><span style="color:var(--gold)">╌</span> 累計投入</span>
+    </div>
+  </div>
+
+  <p class="note">試算採每月定期定額、月底投入、報酬按月複利(月利率 = (1+年化)^(1/12) − 1)。僅供估算,不構成投資建議。</p>
+</div>
+<div id="tip"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmtFull = n => "NT$ " + Math.round(n).toLocaleString("zh-TW");
+const fmtShort = n =>
+  n >= 1e8 ? (n/1e8).toFixed(1)+"億" :
+  n >= 1e4 ? Math.round(n/1e4).toLocaleString()+"萬" :
+  Math.round(n).toLocaleString();
+
+let data = [];
+
+function compute(){
+  const P = Math.max(0, +$("principal").value || 0);
+  const C = Math.max(0, +$("monthly").value || 0);
+  const a = Math.max(0, +$("rate").value || 0) / 100;
+  const M = +$("months").value;
+  const r = Math.pow(1+a, 1/12) - 1;
+
+  data = [];
+  for(let m=0; m<=M; m++){
+    const g = Math.pow(1+r, m);
+    const value = r===0 ? P + C*m : P*g + C*((g-1)/r);
+    const invested = P + C*m;
+    data.push({m, value, invested, gain: value-invested});
+  }
+  const last = data[data.length-1];
+  $("sVal").textContent  = fmtFull(last.value);
+  $("sInv").textContent  = fmtFull(last.invested);
+  $("sGain").textContent = fmtFull(last.gain);
+  $("sRoi").textContent  = "+" + (last.invested>0 ? (last.gain/last.invested*100).toFixed(1) : "0.0") + " %";
+
+  const yr = Math.floor(M/12), mo = M%12;
+  $("mLabel").innerHTML = M + " 個月" +
+    (M>=12 ? ` <small>(約 ${yr} 年${mo?` ${mo} 個月`:""})</small>` : "");
+
+  drawChart();
+}
+
+function drawChart(){
+  const svg = $("chart");
+  const W = svg.clientWidth || 800, H = 320;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const padL = 62, padR = 14, padT = 12, padB = 26;
+  const iw = W-padL-padR, ih = H-padT-padB;
+  const M = data.length-1;
+  const maxY = Math.max(data[M].value, 1) * 1.05;
+
+  const x = m => padL + (m/M)*iw;
+  const y = v => padT + ih - (v/maxY)*ih;
+
+  let s = "";
+  // 格線 + Y 軸標籤
+  for(let i=0;i<=4;i++){
+    const v = maxY*i/4, yy = y(v);
+    s += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#2A323C" stroke-dasharray="3 3"/>`;
+    s += `<text x="${padL-8}" y="${yy+4}" fill="#8B949E" font-size="11" text-anchor="end">${fmtShort(v)}</text>`;
+  }
+  // X 軸年標籤
+  const yrStep = M>=240?60 : M>=120?24 : M>=48?12 : M>=12?6 : 1;
+  for(let m=0;m<=M;m+=yrStep){
+    s += `<text x="${x(m)}" y="${H-8}" fill="#8B949E" font-size="11" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
+  }
+  // 面積 + 折線
+  const pV = data.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
+  const pI = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
+  s += `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#F0475A" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#F0475A" stop-opacity="0"/></linearGradient></defs>`;
+  s += `<polygon points="${x(0)},${y(0)} ${pV} ${x(M)},${y(0)}" fill="url(#g)"/>`;
+  s += `<polyline points="${pI}" fill="none" stroke="#E8B448" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s += `<polyline points="${pV}" fill="none" stroke="#F0475A" stroke-width="2"/>`;
+  s += `<g id="hover" style="display:none">
+    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="#8B949E" stroke-width="1"/>
+    <circle id="hDot" r="4" fill="#F0475A"/></g>`;
+  svg.innerHTML = s;
+  svg._geo = {x, y, padL, iw, M};
+}
+
+// 圖表上直接拖拉/移動查看任一月份
+const tip = $("tip");
+function hover(evt){
+  const svg = $("chart"), g = svg._geo;
+  if(!g) return;
+  const rect = svg.getBoundingClientRect();
+  const px = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left;
+  const scale = rect.width / (svg.viewBox.baseVal.width || rect.width);
+  const m = Math.round(Math.min(Math.max((px/scale - g.padL)/g.iw, 0), 1) * g.M);
+  const d = data[m];
+  const hv = svg.querySelector("#hover");
+  hv.style.display = "";
+  const hx = g.x(m);
+  svg.querySelector("#hLine").setAttribute("x1", hx);
+  svg.querySelector("#hLine").setAttribute("x2", hx);
+  const dot = svg.querySelector("#hDot");
+  dot.setAttribute("cx", hx); dot.setAttribute("cy", g.y(d.value));
+  tip.style.display = "block";
+  const cx = evt.touches ? evt.touches[0].clientX : evt.clientX;
+  const cy = evt.touches ? evt.touches[0].clientY : evt.clientY;
+  tip.style.left = Math.min(cx+14, window.innerWidth-190)+"px";
+  tip.style.top = (cy-10)+"px";
+  tip.innerHTML = `第 ${d.m} 個月<br>` +
+    `<span style="color:#F0475A">總值 ${fmtFull(d.value)}</span><br>` +
+    `<span style="color:#E8B448">投入 ${fmtFull(d.invested)}</span><br>` +
+    `獲利 ${fmtFull(d.gain)}`;
+}
+function hoverEnd(){
+  tip.style.display = "none";
+  const hv = $("chart").querySelector("#hover");
+  if(hv) hv.style.display = "none";
+}
+$("chart").addEventListener("mousemove", hover);
+$("chart").addEventListener("mouseleave", hoverEnd);
+$("chart").addEventListener("touchmove", e=>{e.preventDefault();hover(e);}, {passive:false});
+$("chart").addEventListener("touchend", hoverEnd);
+
+["principal","monthly","rate","months"].forEach(id => $(id).addEventListener("input", compute));
+window.addEventListener("resize", drawChart);
+compute();
+</script>
+</body>
+</html>
