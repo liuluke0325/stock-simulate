@@ -4,89 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>股票複利試算</title>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<style>
-  :root{
-    --bg:#101418; --panel:#171C22; --line:#2A323C;
-    --text:#E8EAED; --dim:#8B949E; --red:#F0475A; --gold:#E8B448;
-  }
-  :root[data-theme="light"]{
-    --bg:#F4F5F7; --panel:#FFFFFF; --line:#DDE1E6;
-    --text:#1A1F26; --dim:#5B6270; --red:#D6304A; --gold:#9A7000;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-size:18px;transition:background .2s,color .2s;
-    font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;padding:30px 24px}
-  .wrap{max-width:960px;margin:0 auto}
-  .eyebrow{font-size:15px;color:var(--red);letter-spacing:3px;margin-bottom:6px}
-  h1{margin:0 0 24px;font-size:30px;font-weight:600}
-  .preset-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-  .preset-row .cap{font-size:15px;color:var(--dim);letter-spacing:1px;margin-right:2px;min-width:76px}
-  .lookup{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 20px}
-  .lookup .cap{font-size:15px;color:var(--dim);letter-spacing:1px;margin-right:2px}
-  .lookup input{background:var(--panel);border:1px solid var(--line);border-radius:9px;
-    color:var(--text);padding:9px 12px;font-size:16px;width:120px;font-family:inherit;outline:none}
-  .lookup input:focus{border-color:var(--red)}
-  .lookup select{background:var(--panel);border:1px solid var(--line);border-radius:9px;
-    color:var(--text);padding:9px 10px;font-size:16px;font-family:inherit;outline:none;cursor:pointer}
-  .lookup select:focus{border-color:var(--red)}
-  .lookup-btn{background:transparent;border:1px solid var(--line);border-radius:9px;
-    color:var(--text);font-size:16px;padding:9px 15px;cursor:pointer;white-space:nowrap;font-family:inherit}
-  .lookup-btn:hover{border-color:var(--red);color:var(--red)}
-  .lookup-btn:disabled{opacity:.4;cursor:not-allowed}
-  .lookup-btn:disabled:hover{border-color:var(--line);color:var(--text)}
-  .pill{background:var(--panel);border:1px solid var(--line);border-radius:22px;
-    padding:8px 17px;font-size:16px;color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
-  .pill:hover{border-color:var(--red);color:var(--text)}
-  .pill.active{background:var(--red);border-color:var(--red);color:#fff}
-  .pill-del{margin-left:4px;opacity:.6;font-weight:700}
-  .pill-del:hover{opacity:1;color:var(--red)}
-  .inputs{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
-  .inputs label{display:flex;flex-direction:column;gap:8px;flex:1;min-width:170px}
-  .inputs .lbl{font-size:15px;color:var(--dim);letter-spacing:1px}
-  .field{display:flex;align-items:center;background:var(--panel);
-    border:1px solid var(--line);border-radius:9px;padding:11px 14px}
-  .field input{background:transparent;border:none;outline:none;color:var(--text);
-    font-size:19px;width:100%;font-family:ui-monospace,'SF Mono',Menlo,monospace}
-  .field .suffix{color:var(--dim);font-size:16px;margin-left:6px;white-space:nowrap}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
-  .stat .k{font-size:14px;color:var(--dim);margin-bottom:8px;letter-spacing:1px}
-  .stat .v{font-size:23px;font-weight:600;font-family:ui-monospace,'SF Mono',Menlo,monospace}
-  .v.red{color:var(--red)} .v.gold{color:var(--gold)}
-  .slider-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;
-    padding:17px 19px;margin-bottom:24px}
-  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:4px}
-  .slider-head .lbl{font-size:15px;color:var(--dim);letter-spacing:1px}
-  .slider-head .val{font-size:20px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
-  .slider-head .val small{color:var(--dim);font-size:16px;font-weight:400}
-  input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:34px}
-  .ticks{display:flex;justify-content:space-between;font-size:14px;color:var(--dim);margin-top:4px}
-  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:18px 10px 10px}
-  .tabs{display:flex;gap:8px;margin:0 0 24px}
-  .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:9px;
-    padding:11px 12px;font-size:16px;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
-  .tab:hover{color:var(--text)}
-  .tab.active{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
-  #chart{width:100%;display:block;touch-action:none;cursor:crosshair}
-  .legend{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:8px 14px 10px}
-  .legend-items{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;color:var(--dim)}
-  .reroll-btn{background:transparent;border:1px solid var(--line);border-radius:7px;
-    color:var(--text);font-size:15px;padding:7px 13px;cursor:pointer;white-space:nowrap;font-family:inherit}
-  .reroll-btn:hover{border-color:var(--red);color:var(--red)}
-  .explainer{background:rgba(240,71,90,0.08);border:1px solid rgba(240,71,90,0.3);border-radius:11px;
-    padding:15px 17px;margin:0 10px 16px;font-size:15.5px;line-height:1.75;color:var(--text)}
-  .explainer .ttl{display:block;margin-bottom:8px;font-size:17px;font-weight:600}
-  .note{font-size:14px;color:var(--dim);margin-top:16px;line-height:1.7}
-  .note a{color:var(--dim)}
-  #tip{position:fixed;pointer-events:none;background:var(--bg);border:1px solid var(--line);
-    border-radius:9px;padding:10px 12px;font-size:15px;display:none;z-index:10;
-    font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
-  .theme-toggle{position:fixed;top:18px;right:18px;z-index:20;background:var(--panel);
-    border:1px solid var(--line);border-radius:50%;width:44px;height:44px;font-size:20px;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)}
-  .theme-toggle:hover{border-color:var(--red)}
-</style>
 </head>
 <body>
 <button class="theme-toggle" id="themeToggle" aria-label="切換深色/淺色模式">🌙</button>
@@ -102,33 +19,35 @@
   <div id="allPresets">
     <div class="preset-row">
       <span class="cap">台股(僅供示意):</span>
-      <button class="pill active" data-rate="8" data-vol="20" data-ccy="TWD">自訂</button>
-      <button class="pill" data-rate="24" data-vol="28" data-ccy="TWD">台積電 2330 ‡</button>
-      <button class="pill" data-rate="30" data-vol="60" data-ccy="TWD">欣興 3037 †</button>
-      <button class="pill" data-rate="9.8" data-vol="18.8" data-ccy="TWD">0050 ✓</button>
+      <button class="pill active" data-rate="8" data-vol="20" data-ccy="TWD" data-key="custom">自訂</button>
+      <button class="pill" data-rate="24" data-vol="28" data-ccy="TWD" data-key="2330">台積電 2330 ‡</button>
+      <button class="pill" data-rate="30" data-vol="60" data-ccy="TWD" data-key="3037">欣興 3037 †</button>
+      <button class="pill" data-rate="9.8" data-vol="18.8" data-ccy="TWD" data-key="0050">0050 ✓</button>
     </div>
     <div class="preset-row">
       <span class="cap">美股(僅供示意):</span>
-      <button class="pill" data-rate="10" data-vol="17" data-ccy="USD">標普500 ✓</button>
-      <button class="pill" data-rate="19" data-vol="30" data-ccy="USD">蘋果 AAPL ‡</button>
-      <button class="pill" data-rate="19" data-vol="27" data-ccy="USD">Google ‡</button>
-      <button class="pill" data-rate="68" data-vol="35" data-ccy="USD">輝達 NVDA ⚠</button>
+      <button class="pill" data-rate="10" data-vol="17" data-ccy="USD" data-key="sp500">標普500 ✓</button>
+      <button class="pill" data-rate="19" data-vol="30" data-ccy="USD" data-key="aapl">蘋果 AAPL ‡</button>
+      <button class="pill" data-rate="19" data-vol="27" data-ccy="USD" data-key="googl">Google ‡</button>
+      <button class="pill" data-rate="68" data-vol="35" data-ccy="USD" data-key="nvda">輝達 NVDA ⚠</button>
     </div>
     <div class="preset-row">
       <span class="cap">港股/中概股(僅供示意):</span>
-      <button class="pill" data-rate="4" data-vol="46" data-ccy="HKD">小米 1810 †</button>
-      <button class="pill" data-rate="1" data-vol="41" data-ccy="HKD">阿里巴巴 †</button>
+      <button class="pill" data-rate="4" data-vol="46" data-ccy="HKD" data-key="xiaomi">小米 1810 †</button>
+      <button class="pill" data-rate="1" data-vol="41" data-ccy="HKD" data-key="baba">阿里巴巴 †</button>
     </div>
     <div class="preset-row">
       <span class="cap">陸股/A股(僅供示意):</span>
-      <button class="pill" data-rate="9.7" data-vol="33" data-ccy="CNY">海康威視 †</button>
-      <button class="pill" data-rate="15.8" data-vol="52.5" data-ccy="CNY">贛鋒鋰業 002460 †</button>
-      <button class="pill" data-rate="12.6" data-vol="58" data-ccy="CNY">華友鈷業 603799 †</button>
+      <button class="pill" data-rate="9.7" data-vol="33" data-ccy="CNY" data-key="hikvision">海康威視 †</button>
+      <button class="pill" data-rate="15.8" data-vol="52.5" data-ccy="CNY" data-key="ganfeng">贛鋒鋰業 002460 †</button>
+      <button class="pill" data-rate="12.6" data-vol="58" data-ccy="CNY" data-key="huayou">華友鈷業 603799 †</button>
     </div>
     <div class="preset-row" id="customRow" style="display:none">
       <span class="cap">我的自訂標的:</span>
     </div>
   </div>
+
+  <div class="preset-note" id="presetNote" style="display:none"></div>
 
   <div class="lookup">
     <span class="cap">新增自訂標的(存在這台瀏覽器裡):</span>
@@ -169,9 +88,6 @@
     <label id="volField" style="display:none"><span class="lbl">年化波動度</span>
       <div class="field"><input id="vol" type="number" value="20" step="1" min="0"><span class="suffix">%</span></div>
     </label>
-    <label><span class="lbl">目前年齡(選填,匯出用)</span>
-      <div class="field"><input id="age" type="number" placeholder="例如 24" step="1" min="0" max="120"><span class="suffix">歲</span></div>
-    </label>
   </div>
 
   <div class="stats">
@@ -211,385 +127,15 @@
 
   <div class="lookup">
     <button class="lookup-btn" id="exportBtn">📊 匯出 Excel</button>
-    <span class="cap">把目前設定與試算結果存成 .xlsx,可用 Excel 打開繼續編輯。</span>
+    <span class="cap">把目前設定與試算結果存成 .xlsx,可用 Excel 打開繼續編輯。目前年齡(選填):</span>
+    <input id="age" type="number" placeholder="例如 24" step="1" min="0" max="120" style="width:70px">
   </div>
 
-  <p class="note">試算採每月定期定額、月底投入,報酬按月複利。上方分頁可切換兩種視角:「單純複利(理論)」是教科書式的平滑成長曲線;「模擬真實走勢(卜瓦松)」則在年化報酬率之上加入隨機漲跌與不定期的市場大幅波動,更貼近現實中上上下下的走勢,每次按「重新模擬」結果都會不同。這正說明短期漲跌難以預測——但長期持續投入,才是存股真正的重點。<br>
-  熱門標的的報酬率/波動度數字,近幾年因 AI 半導體熱潮明顯偏高,<strong>不代表可持續的長期預期報酬</strong>:<br>
-  ・「0050 ✓」預設採用成立 20 年以來的長期含息報酬率(9.8%)與標準差(18.8%),資料至 2023 年底(<a href="https://stock-invest.tw/2023/12/19/0050%E6%88%90%E7%AB%8B20%E5%B9%B4%EF%BC%8C%E5%B9%B4%E5%9D%87%E5%A0%B1%E9%85%AC%E7%8E%879-8%EF%BC%8C%E9%80%99%E5%80%8B%E5%A0%B1%E9%85%AC%E7%8E%87%E6%98%AF%E6%80%8E%E6%A8%A3%E8%A8%88%E7%AE%97%E7%9A%84/" target="_blank" rel="noopener">資料來源</a>)——這是刻意的保守選擇:近 5-10 年 0050 實際報酬率因熱潮飆到約 22-28%,但那樣的漲幅難以長期持續,不宜當作未來預期。<br>
-  ・「台積電 2330 ‡」採近 10 年歷史值(年化約 24%、波動度約 28%),同樣明顯受惠近期熱潮,不同來源估算範圍達 24-34%,僅供功能示意,並非未來預測。<br>
-  ・「欣興 3037 †」為低信心度的粗略估算值(年化約 30%、波動度約 60%),原始數據內部矛盾較多,可信度最低,請審慎參考。<br>
-  ・「標普500 ✓」採用美股 S&amp;P 500 指數自 1926 年以來的長期含息年化報酬率(約 10%)與標準差(約 17%),為財經文獻常見引用值,是分散度最高、最能代表「長期持續投入」精神的基準。<br>
-  ・「蘋果 AAPL ‡」「Google ‡」分別採用自掛牌以來(1980 年、2004 年)的長期年化報酬率估算(皆約 19%),雖然時間夠長、跨過多次景氣循環,但這是<strong>事後才知道的贏家</strong>,存活者偏差極高——事前選中下一支蘋果或 Google 的機率極低,請勿套用到個股選股決策上。<br>
-  ・「輝達 NVDA ⚠」年化報酬率高達 68%、波動度 35%,是近 10 年 AI 熱潮真實發生過的歷史數據,但<strong>極端不可持續,絕對不能當作任何未來報酬假設</strong>。放在這裡是刻意要讓你看看「事後才押中一支噴出股」看起來多誘人、多不切實際——分散與長期紀律,才是本工具想推廣的存股觀念,不是賭下一支輝達。<br>
-  ・「小米 †」「阿里巴巴 †」實際掛牌於香港(非中國 A 股),幣別以港幣(HK$)顯示,數字為本工具自行從歷史股價試算(非引用現成統計,信心度較低):小米約 8 年來年化 4%、波動度 46%;阿里巴巴約 10 年來年化僅 1%、波動度 41%——刻意放這兩檔,是因為它們剛好是<strong>反例</strong>:2021 年起中國科技股遭遇監管重挫,長年下來報酬幾乎打平甚至虧損,說明股票不是只會漲,長期停滯或下跌的風險同樣真實存在。<br>
-  ・「海康威視 †」「贛鋒鋰業 †」「華友鈷業 †」為真正在中國 A 股(深圳/上海)掛牌的公司,幣別以人民幣(¥)顯示,數字同樣是本工具自行從近 10 年歷史股價試算:海康威視年化約 9.7%、波動度約 33%;贛鋒鋰業(鋰礦)年化約 15.8%、波動度約 52.5%;華友鈷業(鈷礦)年化約 12.6%、波動度約 58%——鋰、鈷兩檔波動度特別高,反映電動車原料題材大起大落的循環特性。<br>
+  <p class="note">試算採每月定期定額、月底投入,報酬按月複利。上方分頁可切換兩種視角:「單純複利(理論)」是教科書式的平滑成長曲線;「模擬真實走勢(卜瓦松)」則在年化報酬率之上加入隨機漲跌與不定期的市場大幅波動,更貼近現實中上上下下的走勢,每次按「重新模擬」結果都會不同。這正說明短期漲跌難以預測——但長期持續投入,才是存股真正的重點。點選上方任一熱門標的,可在標的列表下方看到該檔的數字來源與注意事項。<br>
   想查其他個股,可用上方「查看數據」按鈕:選擇市場、輸入代號,台股連到 <a href="https://info.ifa.ai/" target="_blank" rel="noopener">ifa.ai</a>(領有金管會核准投顧執照 115金管投顧新字第008號),港股/陸股/美股連到 Yahoo Finance,查到數據後自行填入「年化報酬率/年化波動度」欄位試算。<br>
   以上皆為歷史數據,不代表未來表現,不構成投資建議。</p>
 </div>
 <div id="tip"></div>
-
-<script>
-const $ = id => document.getElementById(id);
-let currency = 'TWD'; // 'TWD' | 'USD' | 'HKD' | 'CNY' — 由選擇的標的(台股/美股/港股/陸股)決定
-const CCY_SYMBOL = { TWD: "NT$", USD: "US$", HKD: "HK$", CNY: "¥" };
-const CCY_UNIT_WAN = { TWD: true, CNY: true, USD: false, HKD: false }; // 萬/億(台、中) vs K/M/B(美、港)
-const fmtFull = n => CCY_SYMBOL[currency] + " " + Math.round(n).toLocaleString(CCY_UNIT_WAN[currency] ? "zh-TW" : "en-US");
-const fmtShort = n => !CCY_UNIT_WAN[currency]
-  ? (n >= 1e9 ? (n/1e9).toFixed(1)+"B" : n >= 1e6 ? (n/1e6).toFixed(1)+"M" : n >= 1e3 ? Math.round(n/1e3)+"K" : Math.round(n).toLocaleString())
-  : (n >= 1e8 ? (n/1e8).toFixed(1)+"億" : n >= 1e4 ? Math.round(n/1e4).toLocaleString()+"萬" : Math.round(n).toLocaleString());
-
-// 標準常態分布亂數(Box-Muller),用於模擬每月報酬的隨機波動
-function randNormal(){
-  let u=0,v=0;
-  while(u===0) u = Math.random();
-  while(v===0) v = Math.random();
-  return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
-}
-// 卜瓦松分布亂數,用於模擬「市場突發事件」(急跌/急漲)在單月內發生的次數
-function randPoisson(lambda){
-  if(lambda<=0) return 0;
-  const L = Math.exp(-lambda);
-  let k=0, p=1;
-  do{ k++; p*=Math.random(); } while(p>L);
-  return k-1;
-}
-// 市場突發事件參數:平均每年約 1.5 次,幅度略偏負(反映市場「跌快漲慢」的現實特性)
-const JUMP_LAMBDA_YEAR = 1.5, JUMP_MEAN = -0.02, JUMP_STD = 0.05;
-
-let data = [];       // 模擬路徑(含隨機漲跌與突發事件)
-let theoData = [];   // 理論平均值(單純複利,無波動)
-let mode = 'theory'; // 'theory' | 'sim' — 目前顯示中的分頁
-
-function compute(){
-  const P = Math.max(0, +$("principal").value || 0);
-  const C = Math.max(0, +$("monthly").value || 0);
-  const a = Math.max(0, +$("rate").value || 0) / 100;
-  const vol = Math.max(0, +$("vol").value || 0) / 100;
-  const M = +$("months").value;
-  const r = Math.pow(1+a, 1/12) - 1;
-
-  // 理論平均值:不考慮波動,單純逐月複利
-  theoData = [];
-  for(let m=0; m<=M; m++){
-    const g = Math.pow(1+r, m);
-    const value = r===0 ? P + C*m : P*g + C*((g-1)/r);
-    theoData.push({m, value});
-  }
-
-  // 模擬路徑:每月報酬 = 常態波動 + 卜瓦松過程模擬的突發漲跌,呈現真實股市上上下下的走勢
-  const sigmaM = vol / Math.sqrt(12);
-  const lambdaM = JUMP_LAMBDA_YEAR / 12;
-  // 扣掉突發事件本身帶來的期望值偏移,確保平均而言仍貼齊使用者輸入的年化報酬率(波動只放大分散度,不應該偷偷拉低平均值)
-  const jumpDrag = lambdaM * (Math.exp(JUMP_MEAN + 0.5*JUMP_STD*JUMP_STD) - 1);
-  const muM = Math.log(1+a)/12 - 0.5*sigmaM*sigmaM - jumpDrag;
-  data = [{m:0, value:P, invested:P, gain:0}];
-  let v = P;
-  for(let m=1; m<=M; m++){
-    let logRet = muM + sigmaM*randNormal();
-    const nJumps = randPoisson(lambdaM);
-    for(let j=0;j<nJumps;j++) logRet += JUMP_MEAN + JUMP_STD*randNormal();
-    v = v*Math.exp(logRet) + C;
-    v = Math.max(v, 0);
-    const invested = P + C*m;
-    data.push({m, value:v, invested, gain:v-invested});
-  }
-
-  const yr = Math.floor(M/12), mo = M%12;
-  $("mLabel").innerHTML = M + " 個月" +
-    (M>=12 ? ` <small>(約 ${yr} 年${mo?` ${mo} 個月`:""})</small>` : "");
-
-  render();
-}
-
-function render(){
-  const lastSim  = data[data.length-1];
-  const lastTheo = theoData[theoData.length-1];
-  const invested = lastSim.invested;
-
-  if(mode === 'theory'){
-    $("lblVal").textContent  = "期末總值";
-    $("lblGain").textContent = "複利獲利";
-    $("lblRoi").textContent  = "報酬率";
-    $("legendValLabel").textContent = "複利總值";
-    $("sVal").textContent  = fmtFull(lastTheo.value);
-    $("sGain").textContent = fmtFull(lastTheo.value - invested);
-    $("sRoi").textContent  = "+" + (invested>0 ? ((lastTheo.value-invested)/invested*100).toFixed(1) : "0.0") + " %";
-  } else {
-    $("lblVal").textContent  = "期末總值(本次模擬)";
-    $("lblGain").textContent = "模擬損益";
-    $("lblRoi").textContent  = "模擬報酬率";
-    $("legendValLabel").textContent = "模擬路徑(隨機漲跌)";
-    $("sVal").textContent  = fmtFull(lastSim.value);
-    $("sGain").textContent = fmtFull(lastSim.gain);
-    $("sRoi").textContent  = "+" + (invested>0 ? (lastSim.gain/invested*100).toFixed(1) : "0.0") + " %";
-  }
-  $("sInv").textContent  = fmtFull(invested);
-  $("sTheo").textContent = fmtFull(lastTheo.value);
-  $("statTheoCard").style.display   = mode==='sim' ? "" : "none";
-  $("reroll").style.display         = mode==='sim' ? "" : "none";
-  $("legendTheoLine").style.display = mode==='sim' ? "" : "none";
-  $("explainer").style.display      = mode==='sim' ? "" : "none";
-  $("volField").style.display       = mode==='sim' ? "" : "none";
-  $("customVol").style.display      = mode==='sim' ? "" : "none";
-
-  drawChart();
-}
-
-function drawChart(){
-  const svg = $("chart");
-  const cs = getComputedStyle(document.documentElement);
-  const cLine = cs.getPropertyValue('--line').trim();
-  const cDim  = cs.getPropertyValue('--dim').trim();
-  const cRed  = cs.getPropertyValue('--red').trim();
-  const cGold = cs.getPropertyValue('--gold').trim();
-  const W = svg.clientWidth || 800, H = 360;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const padL = 74, padR = 14, padT = 14, padB = 32;
-  const iw = W-padL-padR, ih = H-padT-padB;
-  const M = theoData.length-1;
-  const maxY = (mode==='sim'
-    ? Math.max(...data.map(d=>d.value), ...theoData.map(d=>d.value), 1)
-    : Math.max(...theoData.map(d=>d.value), 1)) * 1.05;
-
-  const x = m => padL + (m/M)*iw;
-  const y = v => padT + ih - (v/maxY)*ih;
-
-  let s = "";
-  // 格線 + Y 軸標籤
-  for(let i=0;i<=4;i++){
-    const v = maxY*i/4, yy = y(v);
-    s += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="${cLine}" stroke-dasharray="3 3"/>`;
-    s += `<text x="${padL-10}" y="${yy+5}" fill="${cDim}" font-size="14" text-anchor="end">${fmtShort(v)}</text>`;
-  }
-  // X 軸年標籤
-  const yrStep = M>=240?60 : M>=120?24 : M>=48?12 : M>=12?6 : 1;
-  for(let m=0;m<=M;m+=yrStep){
-    s += `<text x="${x(m)}" y="${H-10}" fill="${cDim}" font-size="14" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
-  }
-
-  const pInvested = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
-  const mainSeries = mode==='sim' ? data : theoData;
-  const pMain = mainSeries.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
-
-  s += `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${cRed}" stop-opacity="0.3"/>
-    <stop offset="100%" stop-color="${cRed}" stop-opacity="0"/></linearGradient></defs>`;
-  if(mode==='sim'){
-    const pTheo = theoData.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
-    s += `<polyline points="${pTheo}" fill="none" stroke="${cDim}" stroke-width="2" stroke-dasharray="2 5" opacity="0.9"/>`;
-  }
-  s += `<polyline points="${pInvested}" fill="none" stroke="${cGold}" stroke-width="2" stroke-dasharray="4 3"/>`;
-  s += `<polygon points="${x(0)},${y(0)} ${pMain} ${x(M)},${y(0)}" fill="url(#g)"/>`;
-  s += `<polyline points="${pMain}" fill="none" stroke="${cRed}" stroke-width="2.5"/>`;
-  s += `<g id="hover" style="display:none">
-    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="${cDim}" stroke-width="1.5"/>
-    <circle id="hDot" r="5" fill="${cRed}"/></g>`;
-  svg.innerHTML = s;
-  svg._geo = {x, y, padL, iw, M};
-}
-
-// 圖表上直接拖拉/移動查看任一月份
-const tip = $("tip");
-function hover(evt){
-  const svg = $("chart"), g = svg._geo;
-  if(!g) return;
-  const rect = svg.getBoundingClientRect();
-  const px = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left;
-  const scale = rect.width / (svg.viewBox.baseVal.width || rect.width);
-  const m = Math.round(Math.min(Math.max((px/scale - g.padL)/g.iw, 0), 1) * g.M);
-  const dSim = data[m], dTheo = theoData[m];
-  const mainVal = mode==='sim' ? dSim.value : dTheo.value;
-  const hv = svg.querySelector("#hover");
-  hv.style.display = "";
-  const hx = g.x(m);
-  svg.querySelector("#hLine").setAttribute("x1", hx);
-  svg.querySelector("#hLine").setAttribute("x2", hx);
-  const dot = svg.querySelector("#hDot");
-  dot.setAttribute("cx", hx); dot.setAttribute("cy", g.y(mainVal));
-  tip.style.display = "block";
-  const cx = evt.touches ? evt.touches[0].clientX : evt.clientX;
-  const cy = evt.touches ? evt.touches[0].clientY : evt.clientY;
-  tip.style.left = Math.min(cx+14, window.innerWidth-190)+"px";
-  tip.style.top = (cy-10)+"px";
-  if(mode==='sim'){
-    tip.innerHTML = `第 ${m} 個月<br>` +
-      `<span style="color:var(--red)">模擬總值 ${fmtFull(dSim.value)}</span><br>` +
-      `<span style="color:var(--dim)">理論對照 ${fmtFull(dTheo.value)}</span><br>` +
-      `<span style="color:var(--gold)">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
-      `損益 ${fmtFull(dSim.value-dSim.invested)}`;
-  } else {
-    tip.innerHTML = `第 ${m} 個月<br>` +
-      `<span style="color:var(--red)">複利總值 ${fmtFull(dTheo.value)}</span><br>` +
-      `<span style="color:var(--gold)">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
-      `獲利 ${fmtFull(dTheo.value-dSim.invested)}`;
-  }
-}
-function hoverEnd(){
-  tip.style.display = "none";
-  const hv = $("chart").querySelector("#hover");
-  if(hv) hv.style.display = "none";
-}
-$("chart").addEventListener("mousemove", hover);
-$("chart").addEventListener("mouseleave", hoverEnd);
-$("chart").addEventListener("touchmove", e=>{e.preventDefault();hover(e);}, {passive:false});
-$("chart").addEventListener("touchend", hoverEnd);
-
-// 分頁切換:單純複利 / 模擬真實走勢
-document.querySelectorAll(".tab").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    mode = btn.dataset.mode;
-    render();
-  });
-});
-
-// 熱門標的:點選帶入該標的的年化報酬率/波動度示意值(台股/美股各自的幣別也一併切換)
-// 用事件代理綁在容器上,這樣之後動態新增的「自訂標的」按鈕也會自動生效,不用重新綁定
-function selectPill(btn){
-  document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  $("rate").value = btn.dataset.rate;
-  $("vol").value = btn.dataset.vol;
-  currency = btn.dataset.ccy || 'TWD';
-  $("principalSuffix").textContent = CCY_UNIT_WAN[currency] ? "元" : "$";
-  $("monthlySuffix").textContent   = CCY_UNIT_WAN[currency] ? "元/月" : "$/月";
-  compute();
-}
-$("allPresets").addEventListener("click", e => {
-  const del = e.target.closest(".pill-del");
-  if(del){
-    e.stopPropagation();
-    const idx = +del.dataset.idx;
-    const list = loadCustomPresets();
-    list.splice(idx, 1);
-    saveCustomPresets(list);
-    renderCustomPresets();
-    return;
-  }
-  const btn = e.target.closest(".pill");
-  if(btn) selectPill(btn);
-});
-function clearPillActive(){ document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active")); }
-
-// 自訂標的:存在瀏覽器 localStorage,重新整理、下次再開都還在
-const CUSTOM_KEY = "stockSim.customPresets";
-function loadCustomPresets(){
-  try { return JSON.parse(localStorage.getItem(CUSTOM_KEY)) || []; } catch(e){ return []; }
-}
-function saveCustomPresets(list){ localStorage.setItem(CUSTOM_KEY, JSON.stringify(list)); }
-function renderCustomPresets(){
-  const list = loadCustomPresets();
-  const row = $("customRow");
-  row.innerHTML = `<span class="cap">我的自訂標的:</span>` + list.map((p, i) =>
-    `<button class="pill" data-rate="${p.rate}" data-vol="${p.vol}" data-ccy="${p.ccy}">${p.name}<span class="pill-del" data-idx="${i}"> ×</span></button>`
-  ).join("");
-  row.style.display = list.length ? "" : "none";
-}
-renderCustomPresets();
-
-// 波動度只有「模擬」分頁才用得到,理論分頁新增自訂標的時不強制填,沿用目前波動度欄位的值當預設
-function updateCustomAddBtn(){
-  const ok = $("customName").value.trim() !== "" &&
-    $("customRate").value !== "" && !isNaN(+$("customRate").value) &&
-    (mode === 'theory' || ($("customVol").value !== "" && !isNaN(+$("customVol").value)));
-  $("customAddBtn").disabled = !ok;
-}
-["customName","customRate","customVol"].forEach(id => $(id).addEventListener("input", updateCustomAddBtn));
-$("customAddBtn").addEventListener("click", () => {
-  const name = $("customName").value.trim();
-  const rate = +$("customRate").value;
-  const vol = $("customVol").value !== "" ? +$("customVol").value : +$("vol").value;
-  if(!name || isNaN(rate) || isNaN(vol)) return;
-  const list = loadCustomPresets();
-  list.push({ name, rate, vol, ccy: $("customCcy").value });
-  saveCustomPresets(list);
-  renderCustomPresets();
-  $("customName").value = ""; $("customRate").value = ""; $("customVol").value = "";
-  updateCustomAddBtn();
-});
-
-// 自行查詢其他股票的歷史報酬率/波動度(開新分頁,查到後手動填回上方欄位)
-// 台股代號純數字風格跟港股/陸股代號重疊,無法自動判斷,改由使用者選市場
-// 陸股代號開頭 6 為上海(.SS),0 或 3 為深圳(.SZ)
-function openLookup(){
-  const code = $("lookupCode").value.trim();
-  if(!code) return;
-  const market = $("lookupMarket").value;
-  let url;
-  if(market === 'TW') url = `https://info.ifa.ai/tw-stock/${encodeURIComponent(code)}`;
-  else if(market === 'HK') url = `https://finance.yahoo.com/quote/${encodeURIComponent(code.padStart(4,'0'))}.HK`;
-  else if(market === 'CN') url = `https://finance.yahoo.com/quote/${encodeURIComponent(code)}.${code.startsWith('6') ? 'SS' : 'SZ'}`;
-  else url = `https://finance.yahoo.com/quote/${encodeURIComponent(code.toUpperCase())}`;
-  window.open(url, "_blank", "noopener");
-}
-$("lookupBtn").addEventListener("click", openLookup);
-$("lookupCode").addEventListener("keydown", e => { if(e.key === "Enter" && !$("lookupBtn").disabled) openLookup(); });
-$("lookupCode").addEventListener("input", () => {
-  $("lookupBtn").disabled = $("lookupCode").value.trim() === "";
-});
-$("rate").addEventListener("input", clearPillActive);
-$("vol").addEventListener("input", clearPillActive);
-
-["principal","monthly","rate","vol","months"].forEach(id => $(id).addEventListener("input", compute));
-$("reroll").addEventListener("click", compute);
-window.addEventListener("resize", drawChart);
-
-// 匯出 Excel:仿照試算表慣用的「指標為列、時間點為欄」寬表格式,方便直接在 Excel 裡繼續加工
-function exportExcel(){
-  const age = $("age").value.trim() !== "" ? +$("age").value : null;
-  const lastM = data.length - 1;
-  const checkpoints = [];
-  for(let m = 0; m <= lastM; m += 12) checkpoints.push(m);
-  if(checkpoints[checkpoints.length-1] !== lastM) checkpoints.push(lastM);
-
-  const rows = [];
-  rows.push(["股票複利試算 — 匯出資料"]);
-  rows.push(["匯出時間", new Date().toLocaleString("zh-TW")]);
-  rows.push(["期初本金", +$("principal").value, CCY_SYMBOL[currency]]);
-  rows.push(["每月投入", +$("monthly").value, CCY_SYMBOL[currency] + "/月"]);
-  rows.push(["年化報酬率(%)", +$("rate").value]);
-  rows.push(["年化波動度(%,模擬分頁用)", +$("vol").value]);
-  if(age !== null) rows.push(["目前年齡", age]);
-  rows.push([]);
-
-  const headRow = [age !== null ? "年齡" : "月數"];
-  const investedRow = ["累計投入"];
-  const theoRow = ["理論總值(單純複利)"];
-  const simRow = ["模擬總值(卜瓦松模擬,本次結果)"];
-  const gainRow = ["模擬損益"];
-  checkpoints.forEach(m => {
-    headRow.push(age !== null ? +(age + m/12).toFixed(1) : m);
-    investedRow.push(Math.round(data[m].invested));
-    theoRow.push(Math.round(theoData[m].value));
-    simRow.push(Math.round(data[m].value));
-    gainRow.push(Math.round(data[m].value - data[m].invested));
-  });
-  rows.push(headRow, investedRow, theoRow, simRow, gainRow);
-
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "試算結果");
-  XLSX.writeFile(wb, "股票複利試算.xlsx");
-}
-$("exportBtn").addEventListener("click", exportExcel);
-
-// 深色/淺色主題切換,記在 localStorage 下次還記得
-const THEME_KEY = "stockSim.theme";
-function applyTheme(t){
-  document.documentElement.setAttribute("data-theme", t);
-  $("themeToggle").textContent = t === "light" ? "🌙" : "☀️";
-  localStorage.setItem(THEME_KEY, t);
-  if(data.length) drawChart(); // 切換主題只重畫顏色,不重新模擬(初次載入時 data 還沒算好,交給後面的 compute() 畫)
-}
-$("themeToggle").addEventListener("click", () => {
-  const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-  applyTheme(cur === "light" ? "dark" : "light");
-});
-applyTheme(localStorage.getItem(THEME_KEY) || "dark");
-
-compute();
-</script>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
