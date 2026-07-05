@@ -25,6 +25,8 @@
   .lookup-btn{background:transparent;border:1px solid var(--line);border-radius:8px;
     color:var(--text);font-size:13px;padding:7px 12px;cursor:pointer;white-space:nowrap;font-family:inherit}
   .lookup-btn:hover{border-color:var(--red);color:var(--red)}
+  .lookup-btn:disabled{opacity:.4;cursor:not-allowed}
+  .lookup-btn:disabled:hover{border-color:var(--line);color:var(--text)}
   .pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;
     padding:6px 14px;font-size:13px;color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
   .pill:hover{border-color:var(--red);color:var(--text)}
@@ -88,7 +90,7 @@
   <div class="lookup">
     <span class="cap">想查其他股票?輸入代號查歷史報酬/波動度:</span>
     <input id="lookupCode" type="text" placeholder="例如 2454" inputmode="numeric">
-    <button class="lookup-btn" id="lookupBtn">查看數據 ↗</button>
+    <button class="lookup-btn" id="lookupBtn" disabled>查看數據 ↗</button>
   </div>
 
   <div class="inputs">
@@ -382,7 +384,10 @@ function openLookup(){
   window.open(`https://info.ifa.ai/tw-stock/${encodeURIComponent(code)}`, "_blank", "noopener");
 }
 $("lookupBtn").addEventListener("click", openLookup);
-$("lookupCode").addEventListener("keydown", e => { if(e.key === "Enter") openLookup(); });
+$("lookupCode").addEventListener("keydown", e => { if(e.key === "Enter" && !$("lookupBtn").disabled) openLookup(); });
+$("lookupCode").addEventListener("input", () => {
+  $("lookupBtn").disabled = $("lookupCode").value.trim() === "";
+});
 $("rate").addEventListener("input", clearPillActive);
 $("vol").addEventListener("input", clearPillActive);
 
