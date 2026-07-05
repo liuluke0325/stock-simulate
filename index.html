@@ -15,9 +15,9 @@
   .wrap{max-width:860px;margin:0 auto}
   .eyebrow{font-size:12px;color:var(--red);letter-spacing:3px;margin-bottom:4px}
   h1{margin:0 0 20px;font-size:22px;font-weight:600}
-  .presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-  .presets .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px}
-  .lookup{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .preset-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  .preset-row .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px;min-width:64px}
+  .lookup{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:2px 0 16px}
   .lookup .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px}
   .lookup input{background:var(--panel);border:1px solid var(--line);border-radius:8px;
     color:var(--text);padding:7px 10px;font-size:13px;width:100px;font-family:inherit;outline:none}
@@ -79,26 +79,33 @@
   <div class="eyebrow">COMPOUND · 月複利</div>
   <h1>股票複利試算</h1>
 
-  <div class="presets">
-    <span class="cap">熱門標的帶入(僅供示意):</span>
-    <button class="pill active" data-rate="8" data-vol="20">自訂</button>
-    <button class="pill" data-rate="24" data-vol="28">台積電 2330 ‡</button>
-    <button class="pill" data-rate="30" data-vol="60">欣興 3037 †</button>
-    <button class="pill" data-rate="9.8" data-vol="18.8">0050 ✓</button>
+  <div class="preset-row">
+    <span class="cap">台股(僅供示意):</span>
+    <button class="pill active" data-rate="8" data-vol="20" data-ccy="TWD">自訂</button>
+    <button class="pill" data-rate="24" data-vol="28" data-ccy="TWD">台積電 2330 ‡</button>
+    <button class="pill" data-rate="30" data-vol="60" data-ccy="TWD">欣興 3037 †</button>
+    <button class="pill" data-rate="9.8" data-vol="18.8" data-ccy="TWD">0050 ✓</button>
+  </div>
+  <div class="preset-row">
+    <span class="cap">美股(僅供示意):</span>
+    <button class="pill" data-rate="10" data-vol="17" data-ccy="USD">標普500 ✓</button>
+    <button class="pill" data-rate="19" data-vol="30" data-ccy="USD">蘋果 AAPL ‡</button>
+    <button class="pill" data-rate="19" data-vol="27" data-ccy="USD">Google ‡</button>
+    <button class="pill" data-rate="68" data-vol="35" data-ccy="USD">輝達 NVDA ⚠</button>
   </div>
 
   <div class="lookup">
-    <span class="cap">想查其他股票?輸入代號查歷史報酬/波動度:</span>
-    <input id="lookupCode" type="text" placeholder="例如 2454" inputmode="numeric">
+    <span class="cap">想查其他股票?輸入台股或美股代號查歷史報酬/波動度:</span>
+    <input id="lookupCode" type="text" placeholder="例如 2454 或 AAPL">
     <button class="lookup-btn" id="lookupBtn" disabled>查看數據 ↗</button>
   </div>
 
   <div class="inputs">
     <label><span class="lbl">期初本金</span>
-      <div class="field"><input id="principal" type="number" value="100000" step="10000" min="0"><span class="suffix">元</span></div>
+      <div class="field"><input id="principal" type="number" value="100000" step="10000" min="0"><span class="suffix" id="principalSuffix">元</span></div>
     </label>
     <label><span class="lbl">每月投入</span>
-      <div class="field"><input id="monthly" type="number" value="10000" step="1000" min="0"><span class="suffix">元/月</span></div>
+      <div class="field"><input id="monthly" type="number" value="10000" step="1000" min="0"><span class="suffix" id="monthlySuffix">元/月</span></div>
     </label>
     <label><span class="lbl">年化報酬率</span>
       <div class="field"><input id="rate" type="number" value="8" step="0.5" min="0"><span class="suffix">%</span></div>
@@ -152,18 +159,22 @@
   ・「0050 ✓」預設採用成立 20 年以來的長期含息報酬率(9.8%)與標準差(18.8%),資料至 2023 年底(<a href="https://stock-invest.tw/2023/12/19/0050%E6%88%90%E7%AB%8B20%E5%B9%B4%EF%BC%8C%E5%B9%B4%E5%9D%87%E5%A0%B1%E9%85%AC%E7%8E%879-8%EF%BC%8C%E9%80%99%E5%80%8B%E5%A0%B1%E9%85%AC%E7%8E%87%E6%98%AF%E6%80%8E%E6%A8%A3%E8%A8%88%E7%AE%97%E7%9A%84/" target="_blank" rel="noopener">資料來源</a>)——這是刻意的保守選擇:近 5-10 年 0050 實際報酬率因熱潮飆到約 22-28%,但那樣的漲幅難以長期持續,不宜當作未來預期。<br>
   ・「台積電 2330 ‡」採近 10 年歷史值(年化約 24%、波動度約 28%),同樣明顯受惠近期熱潮,不同來源估算範圍達 24-34%,僅供功能示意,並非未來預測。<br>
   ・「欣興 3037 †」為低信心度的粗略估算值(年化約 30%、波動度約 60%),原始數據內部矛盾較多,可信度最低,請審慎參考。<br>
-  想查其他個股,可用上方「查看數據」按鈕,連到 <a href="https://info.ifa.ai/" target="_blank" rel="noopener">ifa.ai</a>(領有金管會核准投顧執照 115金管投顧新字第008號)查詢該股各期間標準差與歷史報酬,查到後自行填入「年化報酬率/年化波動度」欄位試算。<br>
+  ・「標普500 ✓」採用美股 S&amp;P 500 指數自 1926 年以來的長期含息年化報酬率(約 10%)與標準差(約 17%),為財經文獻常見引用值,是分散度最高、最能代表「長期持續投入」精神的基準。<br>
+  ・「蘋果 AAPL ‡」「Google ‡」分別採用自掛牌以來(1980 年、2004 年)的長期年化報酬率估算(皆約 19%),雖然時間夠長、跨過多次景氣循環,但這是<strong>事後才知道的贏家</strong>,存活者偏差極高——事前選中下一支蘋果或 Google 的機率極低,請勿套用到個股選股決策上。<br>
+  ・「輝達 NVDA ⚠」年化報酬率高達 68%、波動度 35%,是近 10 年 AI 熱潮真實發生過的歷史數據,但<strong>極端不可持續,絕對不能當作任何未來報酬假設</strong>。放在這裡是刻意要讓你看看「事後才押中一支噴出股」看起來多誘人、多不切實際——分散與長期紀律,才是本工具想推廣的存股觀念,不是賭下一支輝達。<br>
+  想查其他個股,可用上方「查看數據」按鈕:台股代號(如 2454)連到 <a href="https://info.ifa.ai/" target="_blank" rel="noopener">ifa.ai</a>(領有金管會核准投顧執照 115金管投顧新字第008號),美股代號(如 AAPL)連到 Yahoo Finance,查到數據後自行填入「年化報酬率/年化波動度」欄位試算。<br>
   以上皆為歷史數據,不代表未來表現,不構成投資建議。</p>
 </div>
 <div id="tip"></div>
 
 <script>
 const $ = id => document.getElementById(id);
-const fmtFull = n => "NT$ " + Math.round(n).toLocaleString("zh-TW");
-const fmtShort = n =>
-  n >= 1e8 ? (n/1e8).toFixed(1)+"億" :
-  n >= 1e4 ? Math.round(n/1e4).toLocaleString()+"萬" :
-  Math.round(n).toLocaleString();
+let currency = 'TWD'; // 'TWD' | 'USD' — 由選擇的標的(台股/美股)決定
+const CCY_SYMBOL = { TWD: "NT$", USD: "US$" };
+const fmtFull = n => CCY_SYMBOL[currency] + " " + Math.round(n).toLocaleString(currency === 'TWD' ? "zh-TW" : "en-US");
+const fmtShort = n => currency === 'USD'
+  ? (n >= 1e9 ? (n/1e9).toFixed(1)+"B" : n >= 1e6 ? (n/1e6).toFixed(1)+"M" : n >= 1e3 ? Math.round(n/1e3)+"K" : Math.round(n).toLocaleString())
+  : (n >= 1e8 ? (n/1e8).toFixed(1)+"億" : n >= 1e4 ? Math.round(n/1e4).toLocaleString()+"萬" : Math.round(n).toLocaleString());
 
 // 標準常態分布亂數(Box-Muller),用於模擬每月報酬的隨機波動
 function randNormal(){
@@ -365,23 +376,30 @@ document.querySelectorAll(".tab").forEach(btn=>{
   });
 });
 
-// 熱門標的:點選帶入該標的的年化報酬率/波動度示意值
+// 熱門標的:點選帶入該標的的年化報酬率/波動度示意值(台股/美股各自的幣別也一併切換)
 document.querySelectorAll(".pill").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     $("rate").value = btn.dataset.rate;
     $("vol").value = btn.dataset.vol;
+    currency = btn.dataset.ccy || 'TWD';
+    $("principalSuffix").textContent = currency === 'TWD' ? "元" : "$";
+    $("monthlySuffix").textContent   = currency === 'TWD' ? "元/月" : "$/月";
     compute();
   });
 });
 function clearPillActive(){ document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active")); }
 
 // 自行查詢其他股票的歷史報酬率/波動度(開新分頁,查到後手動填回上方欄位)
+// 純數字代號視為台股(接 ifa.ai),含英文字母則視為美股代號(接 Yahoo Finance)
 function openLookup(){
   const code = $("lookupCode").value.trim();
   if(!code) return;
-  window.open(`https://info.ifa.ai/tw-stock/${encodeURIComponent(code)}`, "_blank", "noopener");
+  const url = /^\d{3,6}$/.test(code)
+    ? `https://info.ifa.ai/tw-stock/${encodeURIComponent(code)}`
+    : `https://finance.yahoo.com/quote/${encodeURIComponent(code.toUpperCase())}`;
+  window.open(url, "_blank", "noopener");
 }
 $("lookupBtn").addEventListener("click", openLookup);
 $("lookupCode").addEventListener("keydown", e => { if(e.key === "Enter" && !$("lookupBtn").disabled) openLookup(); });
