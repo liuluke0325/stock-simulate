@@ -15,6 +15,12 @@
   .wrap{max-width:860px;margin:0 auto}
   .eyebrow{font-size:12px;color:var(--red);letter-spacing:3px;margin-bottom:4px}
   h1{margin:0 0 20px;font-size:22px;font-weight:600}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .presets .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:6px 14px;font-size:13px;color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
+  .pill:hover{border-color:var(--red);color:var(--text)}
+  .pill.active{background:var(--red);border-color:var(--red);color:#fff}
   .inputs{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
   .inputs label{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
   .inputs .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
@@ -37,9 +43,22 @@
   input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:28px}
   .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:2px}
   .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 8px 8px}
+  .tabs{display:flex;gap:6px;margin:0 8px 12px}
+  .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;font-size:13px;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
   #chart{width:100%;display:block;touch-action:none;cursor:crosshair}
-  .legend{display:flex;gap:18px;padding:6px 12px 8px;font-size:12px;color:var(--dim)}
+  .legend{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:6px 12px 8px}
+  .legend-items{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+  .reroll-btn{background:transparent;border:1px solid var(--line);border-radius:6px;
+    color:var(--text);font-size:12px;padding:5px 10px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .reroll-btn:hover{border-color:var(--red);color:var(--red)}
+  .explainer{background:rgba(240,71,90,0.08);border:1px solid rgba(240,71,90,0.3);border-radius:10px;
+    padding:12px 14px;margin:0 8px 14px;font-size:12.5px;line-height:1.75;color:var(--text)}
+  .explainer .ttl{display:block;margin-bottom:6px;font-size:13px;font-weight:600}
   .note{font-size:11px;color:var(--dim);margin-top:14px;line-height:1.6}
+  .note a{color:var(--dim)}
   #tip{position:fixed;pointer-events:none;background:var(--bg);border:1px solid var(--line);
     border-radius:8px;padding:8px 10px;font-size:12px;display:none;z-index:10;
     font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
@@ -49,6 +68,14 @@
 <div class="wrap">
   <div class="eyebrow">COMPOUND · 月複利</div>
   <h1>股票複利試算</h1>
+
+  <div class="presets">
+    <span class="cap">熱門標的帶入(僅供示意):</span>
+    <button class="pill active" data-rate="8" data-vol="20">自訂</button>
+    <button class="pill" data-rate="18" data-vol="32">台積電 2330 †</button>
+    <button class="pill" data-rate="20" data-vol="42">欣興 3037 †</button>
+    <button class="pill" data-rate="9.8" data-vol="18.8">0050 ✓</button>
+  </div>
 
   <div class="inputs">
     <label><span class="lbl">期初本金</span>
@@ -60,13 +87,17 @@
     <label><span class="lbl">年化報酬率</span>
       <div class="field"><input id="rate" type="number" value="8" step="0.5" min="0"><span class="suffix">%</span></div>
     </label>
+    <label><span class="lbl">年化波動度</span>
+      <div class="field"><input id="vol" type="number" value="20" step="1" min="0"><span class="suffix">%</span></div>
+    </label>
   </div>
 
   <div class="stats">
-    <div class="stat"><div class="k">期末總值</div><div class="v red" id="sVal">–</div></div>
+    <div class="stat"><div class="k" id="lblVal">期末總值</div><div class="v red" id="sVal">–</div></div>
     <div class="stat"><div class="k">累計投入</div><div class="v gold" id="sInv">–</div></div>
-    <div class="stat"><div class="k">複利獲利</div><div class="v red" id="sGain">–</div></div>
-    <div class="stat"><div class="k">報酬率</div><div class="v red" id="sRoi">–</div></div>
+    <div class="stat"><div class="k" id="lblGain">複利獲利</div><div class="v red" id="sGain">–</div></div>
+    <div class="stat"><div class="k" id="lblRoi">報酬率</div><div class="v red" id="sRoi">–</div></div>
+    <div class="stat" id="statTheoCard" style="display:none"><div class="k">理論平均值(對照)</div><div class="v" id="sTheo">–</div></div>
   </div>
 
   <div class="slider-box">
@@ -79,14 +110,29 @@
   </div>
 
   <div class="chart-box">
+    <div class="tabs">
+      <button class="tab active" data-mode="theory">單純複利(理論)</button>
+      <button class="tab" data-mode="sim">模擬真實走勢(卜瓦松)</button>
+    </div>
+    <div class="explainer" id="explainer" style="display:none">
+      <span class="ttl">🎲 為什麼這張圖上上下下,不是一條平滑的線?</span>
+      真實股市不會乖乖地每個月都照平均值上漲,而是「平常小漲小跌,偶爾來一次讓人嚇一跳的大漲或大跌」——像疫情崩盤、升息重挫、或財報利多噴出。<br>
+      「卜瓦松過程」是一種很常拿來模擬「意外事件多久發生一次」的數學工具,原本用在像「一小時內平均會接到幾通電話」這種問題上。這裡拿它來決定「這個月會不會剛好發生一次市場大事件」,如果發生了,就隨機讓它是一次大漲或大跌。<br>
+      把這種「偶發的大事件」疊加在每個月正常的小幅漲跌上,畫出來的線就會像真實股市一樣崎嶇不平——而不是教科書公式那種一路平滑向上的曲線。
+    </div>
     <svg id="chart" height="320" preserveAspectRatio="none"></svg>
     <div class="legend">
-      <span><span style="color:var(--red)">━</span> 複利總值</span>
-      <span><span style="color:var(--gold)">╌</span> 累計投入</span>
+      <div class="legend-items">
+        <span><span style="color:#F0475A">━</span> <span id="legendValLabel">複利總值</span></span>
+        <span><span style="color:#E8B448">╌</span> 累計投入</span>
+        <span id="legendTheoLine" style="display:none"><span style="color:#8B949E">╌</span> 理論平均值</span>
+      </div>
+      <button class="reroll-btn" id="reroll" style="display:none">🔀 重新模擬一次</button>
     </div>
   </div>
 
-  <p class="note">試算採每月定期定額、月底投入、報酬按月複利(月利率 = (1+年化)^(1/12) − 1)。僅供估算,不構成投資建議。</p>
+  <p class="note">試算採每月定期定額、月底投入,報酬按月複利。上方分頁可切換兩種視角:「單純複利(理論)」是教科書式的平滑成長曲線;「模擬真實走勢(卜瓦松)」則在年化報酬率之上加入隨機漲跌與不定期的市場大幅波動,更貼近現實中上上下下的走勢,每次按「重新模擬」結果都會不同。這正說明短期漲跌難以預測——但長期持續投入,才是存股真正的重點。<br>
+  熱門標的中,「0050 ✓」的年化報酬率(9.8%)與年化標準差(18.8%)取自 0050 成立 20 年來的含息報酬率公開資料(資料時間至 2023 年底,<a href="https://stock-invest.tw/2023/12/19/0050%E6%88%90%E7%AB%8B20%E5%B9%B4%EF%BC%8C%E5%B9%B4%E5%9D%87%E5%A0%B1%E9%85%AC%E7%8E%879-8%EF%BC%8C%E9%80%99%E5%80%8B%E5%A0%B1%E9%85%AC%E7%8E%87%E6%98%AF%E6%80%8E%E6%A8%A3%E8%A8%88%E7%AE%97%E7%9A%84/" target="_blank" rel="noopener">資料來源</a>);標示「†」的台積電、欣興數字則是<strong>未經查證的粗略推估值</strong>(目前找不到可靠的公開歷史年化報酬率/波動度數據),僅供功能示意。以上皆非精確數據,不代表未來表現,不構成投資建議。</p>
 </div>
 <div id="tip"></div>
 
@@ -98,31 +144,95 @@ const fmtShort = n =>
   n >= 1e4 ? Math.round(n/1e4).toLocaleString()+"萬" :
   Math.round(n).toLocaleString();
 
-let data = [];
+// 標準常態分布亂數(Box-Muller),用於模擬每月報酬的隨機波動
+function randNormal(){
+  let u=0,v=0;
+  while(u===0) u = Math.random();
+  while(v===0) v = Math.random();
+  return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+// 卜瓦松分布亂數,用於模擬「市場突發事件」(急跌/急漲)在單月內發生的次數
+function randPoisson(lambda){
+  if(lambda<=0) return 0;
+  const L = Math.exp(-lambda);
+  let k=0, p=1;
+  do{ k++; p*=Math.random(); } while(p>L);
+  return k-1;
+}
+// 市場突發事件參數:平均每年約 1.5 次,幅度略偏負(反映市場「跌快漲慢」的現實特性)
+const JUMP_LAMBDA_YEAR = 1.5, JUMP_MEAN = -0.02, JUMP_STD = 0.05;
+
+let data = [];       // 模擬路徑(含隨機漲跌與突發事件)
+let theoData = [];   // 理論平均值(單純複利,無波動)
+let mode = 'theory'; // 'theory' | 'sim' — 目前顯示中的分頁
 
 function compute(){
   const P = Math.max(0, +$("principal").value || 0);
   const C = Math.max(0, +$("monthly").value || 0);
   const a = Math.max(0, +$("rate").value || 0) / 100;
+  const vol = Math.max(0, +$("vol").value || 0) / 100;
   const M = +$("months").value;
   const r = Math.pow(1+a, 1/12) - 1;
 
-  data = [];
+  // 理論平均值:不考慮波動,單純逐月複利
+  theoData = [];
   for(let m=0; m<=M; m++){
     const g = Math.pow(1+r, m);
     const value = r===0 ? P + C*m : P*g + C*((g-1)/r);
-    const invested = P + C*m;
-    data.push({m, value, invested, gain: value-invested});
+    theoData.push({m, value});
   }
-  const last = data[data.length-1];
-  $("sVal").textContent  = fmtFull(last.value);
-  $("sInv").textContent  = fmtFull(last.invested);
-  $("sGain").textContent = fmtFull(last.gain);
-  $("sRoi").textContent  = "+" + (last.invested>0 ? (last.gain/last.invested*100).toFixed(1) : "0.0") + " %";
+
+  // 模擬路徑:每月報酬 = 常態波動 + 卜瓦松過程模擬的突發漲跌,呈現真實股市上上下下的走勢
+  const sigmaM = vol / Math.sqrt(12);
+  const muM = Math.log(1+a)/12 - 0.5*sigmaM*sigmaM;
+  const lambdaM = JUMP_LAMBDA_YEAR / 12;
+  data = [{m:0, value:P, invested:P, gain:0}];
+  let v = P;
+  for(let m=1; m<=M; m++){
+    let logRet = muM + sigmaM*randNormal();
+    const nJumps = randPoisson(lambdaM);
+    for(let j=0;j<nJumps;j++) logRet += JUMP_MEAN + JUMP_STD*randNormal();
+    v = v*Math.exp(logRet) + C;
+    v = Math.max(v, 0);
+    const invested = P + C*m;
+    data.push({m, value:v, invested, gain:v-invested});
+  }
 
   const yr = Math.floor(M/12), mo = M%12;
   $("mLabel").innerHTML = M + " 個月" +
     (M>=12 ? ` <small>(約 ${yr} 年${mo?` ${mo} 個月`:""})</small>` : "");
+
+  render();
+}
+
+function render(){
+  const lastSim  = data[data.length-1];
+  const lastTheo = theoData[theoData.length-1];
+  const invested = lastSim.invested;
+
+  if(mode === 'theory'){
+    $("lblVal").textContent  = "期末總值";
+    $("lblGain").textContent = "複利獲利";
+    $("lblRoi").textContent  = "報酬率";
+    $("legendValLabel").textContent = "複利總值";
+    $("sVal").textContent  = fmtFull(lastTheo.value);
+    $("sGain").textContent = fmtFull(lastTheo.value - invested);
+    $("sRoi").textContent  = "+" + (invested>0 ? ((lastTheo.value-invested)/invested*100).toFixed(1) : "0.0") + " %";
+  } else {
+    $("lblVal").textContent  = "期末總值(本次模擬)";
+    $("lblGain").textContent = "模擬損益";
+    $("lblRoi").textContent  = "模擬報酬率";
+    $("legendValLabel").textContent = "模擬路徑(隨機漲跌)";
+    $("sVal").textContent  = fmtFull(lastSim.value);
+    $("sGain").textContent = fmtFull(lastSim.gain);
+    $("sRoi").textContent  = "+" + (invested>0 ? (lastSim.gain/invested*100).toFixed(1) : "0.0") + " %";
+  }
+  $("sInv").textContent  = fmtFull(invested);
+  $("sTheo").textContent = fmtFull(lastTheo.value);
+  $("statTheoCard").style.display   = mode==='sim' ? "" : "none";
+  $("reroll").style.display         = mode==='sim' ? "" : "none";
+  $("legendTheoLine").style.display = mode==='sim' ? "" : "none";
+  $("explainer").style.display      = mode==='sim' ? "" : "none";
 
   drawChart();
 }
@@ -133,8 +243,10 @@ function drawChart(){
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const padL = 62, padR = 14, padT = 12, padB = 26;
   const iw = W-padL-padR, ih = H-padT-padB;
-  const M = data.length-1;
-  const maxY = Math.max(data[M].value, 1) * 1.05;
+  const M = theoData.length-1;
+  const maxY = (mode==='sim'
+    ? Math.max(...data.map(d=>d.value), ...theoData.map(d=>d.value), 1)
+    : Math.max(...theoData.map(d=>d.value), 1)) * 1.05;
 
   const x = m => padL + (m/M)*iw;
   const y = v => padT + ih - (v/maxY)*ih;
@@ -151,15 +263,21 @@ function drawChart(){
   for(let m=0;m<=M;m+=yrStep){
     s += `<text x="${x(m)}" y="${H-8}" fill="#8B949E" font-size="11" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
   }
-  // 面積 + 折線
-  const pV = data.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
-  const pI = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
+
+  const pInvested = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
+  const mainSeries = mode==='sim' ? data : theoData;
+  const pMain = mainSeries.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
+
   s += `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#F0475A" stop-opacity="0.35"/>
+    <stop offset="0%" stop-color="#F0475A" stop-opacity="0.3"/>
     <stop offset="100%" stop-color="#F0475A" stop-opacity="0"/></linearGradient></defs>`;
-  s += `<polygon points="${x(0)},${y(0)} ${pV} ${x(M)},${y(0)}" fill="url(#g)"/>`;
-  s += `<polyline points="${pI}" fill="none" stroke="#E8B448" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-  s += `<polyline points="${pV}" fill="none" stroke="#F0475A" stroke-width="2"/>`;
+  if(mode==='sim'){
+    const pTheo = theoData.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
+    s += `<polyline points="${pTheo}" fill="none" stroke="#8B949E" stroke-width="1.5" stroke-dasharray="2 5" opacity="0.9"/>`;
+  }
+  s += `<polyline points="${pInvested}" fill="none" stroke="#E8B448" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s += `<polygon points="${x(0)},${y(0)} ${pMain} ${x(M)},${y(0)}" fill="url(#g)"/>`;
+  s += `<polyline points="${pMain}" fill="none" stroke="#F0475A" stroke-width="2"/>`;
   s += `<g id="hover" style="display:none">
     <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="#8B949E" stroke-width="1"/>
     <circle id="hDot" r="4" fill="#F0475A"/></g>`;
@@ -176,23 +294,32 @@ function hover(evt){
   const px = (evt.touches ? evt.touches[0].clientX : evt.clientX) - rect.left;
   const scale = rect.width / (svg.viewBox.baseVal.width || rect.width);
   const m = Math.round(Math.min(Math.max((px/scale - g.padL)/g.iw, 0), 1) * g.M);
-  const d = data[m];
+  const dSim = data[m], dTheo = theoData[m];
+  const mainVal = mode==='sim' ? dSim.value : dTheo.value;
   const hv = svg.querySelector("#hover");
   hv.style.display = "";
   const hx = g.x(m);
   svg.querySelector("#hLine").setAttribute("x1", hx);
   svg.querySelector("#hLine").setAttribute("x2", hx);
   const dot = svg.querySelector("#hDot");
-  dot.setAttribute("cx", hx); dot.setAttribute("cy", g.y(d.value));
+  dot.setAttribute("cx", hx); dot.setAttribute("cy", g.y(mainVal));
   tip.style.display = "block";
   const cx = evt.touches ? evt.touches[0].clientX : evt.clientX;
   const cy = evt.touches ? evt.touches[0].clientY : evt.clientY;
   tip.style.left = Math.min(cx+14, window.innerWidth-190)+"px";
   tip.style.top = (cy-10)+"px";
-  tip.innerHTML = `第 ${d.m} 個月<br>` +
-    `<span style="color:#F0475A">總值 ${fmtFull(d.value)}</span><br>` +
-    `<span style="color:#E8B448">投入 ${fmtFull(d.invested)}</span><br>` +
-    `獲利 ${fmtFull(d.gain)}`;
+  if(mode==='sim'){
+    tip.innerHTML = `第 ${m} 個月<br>` +
+      `<span style="color:#F0475A">模擬總值 ${fmtFull(dSim.value)}</span><br>` +
+      `<span style="color:#8B949E">理論對照 ${fmtFull(dTheo.value)}</span><br>` +
+      `<span style="color:#E8B448">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
+      `損益 ${fmtFull(dSim.value-dSim.invested)}`;
+  } else {
+    tip.innerHTML = `第 ${m} 個月<br>` +
+      `<span style="color:#F0475A">複利總值 ${fmtFull(dTheo.value)}</span><br>` +
+      `<span style="color:#E8B448">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
+      `獲利 ${fmtFull(dTheo.value-dSim.invested)}`;
+  }
 }
 function hoverEnd(){
   tip.style.display = "none";
@@ -204,7 +331,32 @@ $("chart").addEventListener("mouseleave", hoverEnd);
 $("chart").addEventListener("touchmove", e=>{e.preventDefault();hover(e);}, {passive:false});
 $("chart").addEventListener("touchend", hoverEnd);
 
-["principal","monthly","rate","months"].forEach(id => $(id).addEventListener("input", compute));
+// 分頁切換:單純複利 / 模擬真實走勢
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    mode = btn.dataset.mode;
+    render();
+  });
+});
+
+// 熱門標的:點選帶入該標的的年化報酬率/波動度示意值
+document.querySelectorAll(".pill").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    $("rate").value = btn.dataset.rate;
+    $("vol").value = btn.dataset.vol;
+    compute();
+  });
+});
+function clearPillActive(){ document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active")); }
+$("rate").addEventListener("input", clearPillActive);
+$("vol").addEventListener("input", clearPillActive);
+
+["principal","monthly","rate","vol","months"].forEach(id => $(id).addEventListener("input", compute));
+$("reroll").addEventListener("click", compute);
 window.addEventListener("resize", drawChart);
 compute();
 </script>
