@@ -87,7 +87,7 @@
     <label><span class="lbl">年化報酬率</span>
       <div class="field"><input id="rate" type="number" value="8" step="0.5" min="0"><span class="suffix">%</span></div>
     </label>
-    <label><span class="lbl">年化波動度</span>
+    <label id="volField" style="display:none"><span class="lbl">年化波動度</span>
       <div class="field"><input id="vol" type="number" value="20" step="1" min="0"><span class="suffix">%</span></div>
     </label>
   </div>
@@ -188,8 +188,10 @@ function compute(){
 
   // 模擬路徑:每月報酬 = 常態波動 + 卜瓦松過程模擬的突發漲跌,呈現真實股市上上下下的走勢
   const sigmaM = vol / Math.sqrt(12);
-  const muM = Math.log(1+a)/12 - 0.5*sigmaM*sigmaM;
   const lambdaM = JUMP_LAMBDA_YEAR / 12;
+  // 扣掉突發事件本身帶來的期望值偏移,確保平均而言仍貼齊使用者輸入的年化報酬率(波動只放大分散度,不應該偷偷拉低平均值)
+  const jumpDrag = lambdaM * (Math.exp(JUMP_MEAN + 0.5*JUMP_STD*JUMP_STD) - 1);
+  const muM = Math.log(1+a)/12 - 0.5*sigmaM*sigmaM - jumpDrag;
   data = [{m:0, value:P, invested:P, gain:0}];
   let v = P;
   for(let m=1; m<=M; m++){
@@ -237,6 +239,7 @@ function render(){
   $("reroll").style.display         = mode==='sim' ? "" : "none";
   $("legendTheoLine").style.display = mode==='sim' ? "" : "none";
   $("explainer").style.display      = mode==='sim' ? "" : "none";
+  $("volField").style.display       = mode==='sim' ? "" : "none";
 
   drawChart();
 }
