@@ -10,8 +10,12 @@
     --bg:#101418; --panel:#171C22; --line:#2A323C;
     --text:#E8EAED; --dim:#8B949E; --red:#F0475A; --gold:#E8B448;
   }
+  :root[data-theme="light"]{
+    --bg:#F4F5F7; --panel:#FFFFFF; --line:#DDE1E6;
+    --text:#1A1F26; --dim:#5B6270; --red:#D6304A; --gold:#9A7000;
+  }
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-size:18px;
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-size:18px;transition:background .2s,color .2s;
     font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;padding:30px 24px}
   .wrap{max-width:960px;margin:0 auto}
   .eyebrow{font-size:15px;color:var(--red);letter-spacing:3px;margin-bottom:6px}
@@ -78,9 +82,14 @@
   #tip{position:fixed;pointer-events:none;background:var(--bg);border:1px solid var(--line);
     border-radius:9px;padding:10px 12px;font-size:15px;display:none;z-index:10;
     font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+  .theme-toggle{position:fixed;top:18px;right:18px;z-index:20;background:var(--panel);
+    border:1px solid var(--line);border-radius:50%;width:44px;height:44px;font-size:20px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text)}
+  .theme-toggle:hover{border-color:var(--red)}
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="themeToggle" aria-label="切換深色/淺色模式">🌙</button>
 <div class="wrap">
   <div class="eyebrow">COMPOUND · 月複利</div>
   <h1>股票複利試算</h1>
@@ -192,9 +201,9 @@
     <svg id="chart" height="360" preserveAspectRatio="none"></svg>
     <div class="legend">
       <div class="legend-items">
-        <span><span style="color:#F0475A">━</span> <span id="legendValLabel">複利總值</span></span>
-        <span><span style="color:#E8B448">╌</span> 累計投入</span>
-        <span id="legendTheoLine" style="display:none"><span style="color:#8B949E">╌</span> 理論平均值</span>
+        <span><span style="color:var(--red)">━</span> <span id="legendValLabel">複利總值</span></span>
+        <span><span style="color:var(--gold)">╌</span> 累計投入</span>
+        <span id="legendTheoLine" style="display:none"><span style="color:var(--dim)">╌</span> 理論平均值</span>
       </div>
       <button class="reroll-btn" id="reroll" style="display:none">🔀 重新模擬一次</button>
     </div>
@@ -329,6 +338,11 @@ function render(){
 
 function drawChart(){
   const svg = $("chart");
+  const cs = getComputedStyle(document.documentElement);
+  const cLine = cs.getPropertyValue('--line').trim();
+  const cDim  = cs.getPropertyValue('--dim').trim();
+  const cRed  = cs.getPropertyValue('--red').trim();
+  const cGold = cs.getPropertyValue('--gold').trim();
   const W = svg.clientWidth || 800, H = 360;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const padL = 74, padR = 14, padT = 14, padB = 32;
@@ -345,13 +359,13 @@ function drawChart(){
   // 格線 + Y 軸標籤
   for(let i=0;i<=4;i++){
     const v = maxY*i/4, yy = y(v);
-    s += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#2A323C" stroke-dasharray="3 3"/>`;
-    s += `<text x="${padL-10}" y="${yy+5}" fill="#8B949E" font-size="14" text-anchor="end">${fmtShort(v)}</text>`;
+    s += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="${cLine}" stroke-dasharray="3 3"/>`;
+    s += `<text x="${padL-10}" y="${yy+5}" fill="${cDim}" font-size="14" text-anchor="end">${fmtShort(v)}</text>`;
   }
   // X 軸年標籤
   const yrStep = M>=240?60 : M>=120?24 : M>=48?12 : M>=12?6 : 1;
   for(let m=0;m<=M;m+=yrStep){
-    s += `<text x="${x(m)}" y="${H-10}" fill="#8B949E" font-size="14" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
+    s += `<text x="${x(m)}" y="${H-10}" fill="${cDim}" font-size="14" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
   }
 
   const pInvested = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
@@ -359,18 +373,18 @@ function drawChart(){
   const pMain = mainSeries.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
 
   s += `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#F0475A" stop-opacity="0.3"/>
-    <stop offset="100%" stop-color="#F0475A" stop-opacity="0"/></linearGradient></defs>`;
+    <stop offset="0%" stop-color="${cRed}" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="${cRed}" stop-opacity="0"/></linearGradient></defs>`;
   if(mode==='sim'){
     const pTheo = theoData.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
-    s += `<polyline points="${pTheo}" fill="none" stroke="#8B949E" stroke-width="2" stroke-dasharray="2 5" opacity="0.9"/>`;
+    s += `<polyline points="${pTheo}" fill="none" stroke="${cDim}" stroke-width="2" stroke-dasharray="2 5" opacity="0.9"/>`;
   }
-  s += `<polyline points="${pInvested}" fill="none" stroke="#E8B448" stroke-width="2" stroke-dasharray="4 3"/>`;
+  s += `<polyline points="${pInvested}" fill="none" stroke="${cGold}" stroke-width="2" stroke-dasharray="4 3"/>`;
   s += `<polygon points="${x(0)},${y(0)} ${pMain} ${x(M)},${y(0)}" fill="url(#g)"/>`;
-  s += `<polyline points="${pMain}" fill="none" stroke="#F0475A" stroke-width="2.5"/>`;
+  s += `<polyline points="${pMain}" fill="none" stroke="${cRed}" stroke-width="2.5"/>`;
   s += `<g id="hover" style="display:none">
-    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="#8B949E" stroke-width="1.5"/>
-    <circle id="hDot" r="5" fill="#F0475A"/></g>`;
+    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="${cDim}" stroke-width="1.5"/>
+    <circle id="hDot" r="5" fill="${cRed}"/></g>`;
   svg.innerHTML = s;
   svg._geo = {x, y, padL, iw, M};
 }
@@ -400,14 +414,14 @@ function hover(evt){
   tip.style.top = (cy-10)+"px";
   if(mode==='sim'){
     tip.innerHTML = `第 ${m} 個月<br>` +
-      `<span style="color:#F0475A">模擬總值 ${fmtFull(dSim.value)}</span><br>` +
-      `<span style="color:#8B949E">理論對照 ${fmtFull(dTheo.value)}</span><br>` +
-      `<span style="color:#E8B448">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
+      `<span style="color:var(--red)">模擬總值 ${fmtFull(dSim.value)}</span><br>` +
+      `<span style="color:var(--dim)">理論對照 ${fmtFull(dTheo.value)}</span><br>` +
+      `<span style="color:var(--gold)">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
       `損益 ${fmtFull(dSim.value-dSim.invested)}`;
   } else {
     tip.innerHTML = `第 ${m} 個月<br>` +
-      `<span style="color:#F0475A">複利總值 ${fmtFull(dTheo.value)}</span><br>` +
-      `<span style="color:#E8B448">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
+      `<span style="color:var(--red)">複利總值 ${fmtFull(dTheo.value)}</span><br>` +
+      `<span style="color:var(--gold)">累計投入 ${fmtFull(dSim.invested)}</span><br>` +
       `獲利 ${fmtFull(dTheo.value-dSim.invested)}`;
   }
 }
@@ -560,6 +574,20 @@ function exportExcel(){
   XLSX.writeFile(wb, "股票複利試算.xlsx");
 }
 $("exportBtn").addEventListener("click", exportExcel);
+
+// 深色/淺色主題切換,記在 localStorage 下次還記得
+const THEME_KEY = "stockSim.theme";
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  $("themeToggle").textContent = t === "light" ? "🌙" : "☀️";
+  localStorage.setItem(THEME_KEY, t);
+  if(data.length) drawChart(); // 切換主題只重畫顏色,不重新模擬(初次載入時 data 還沒算好,交給後面的 compute() 畫)
+}
+$("themeToggle").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  applyTheme(cur === "light" ? "dark" : "light");
+});
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
 
 compute();
 </script>
