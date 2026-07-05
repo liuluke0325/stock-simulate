@@ -10,67 +10,67 @@
     --text:#E8EAED; --dim:#8B949E; --red:#F0475A; --gold:#E8B448;
   }
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
-    font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;padding:24px 20px}
-  .wrap{max-width:860px;margin:0 auto}
-  .eyebrow{font-size:12px;color:var(--red);letter-spacing:3px;margin-bottom:4px}
-  h1{margin:0 0 20px;font-size:22px;font-weight:600}
-  .preset-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
-  .preset-row .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px;min-width:64px}
-  .lookup{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:2px 0 16px}
-  .lookup .cap{font-size:12px;color:var(--dim);letter-spacing:1px;margin-right:2px}
-  .lookup input{background:var(--panel);border:1px solid var(--line);border-radius:8px;
-    color:var(--text);padding:7px 10px;font-size:13px;width:100px;font-family:inherit;outline:none}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-size:18px;
+    font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;padding:30px 24px}
+  .wrap{max-width:960px;margin:0 auto}
+  .eyebrow{font-size:15px;color:var(--red);letter-spacing:3px;margin-bottom:6px}
+  h1{margin:0 0 24px;font-size:30px;font-weight:600}
+  .preset-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .preset-row .cap{font-size:15px;color:var(--dim);letter-spacing:1px;margin-right:2px;min-width:76px}
+  .lookup{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 20px}
+  .lookup .cap{font-size:15px;color:var(--dim);letter-spacing:1px;margin-right:2px}
+  .lookup input{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    color:var(--text);padding:9px 12px;font-size:16px;width:120px;font-family:inherit;outline:none}
   .lookup input:focus{border-color:var(--red)}
-  .lookup-btn{background:transparent;border:1px solid var(--line);border-radius:8px;
-    color:var(--text);font-size:13px;padding:7px 12px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .lookup-btn{background:transparent;border:1px solid var(--line);border-radius:9px;
+    color:var(--text);font-size:16px;padding:9px 15px;cursor:pointer;white-space:nowrap;font-family:inherit}
   .lookup-btn:hover{border-color:var(--red);color:var(--red)}
   .lookup-btn:disabled{opacity:.4;cursor:not-allowed}
   .lookup-btn:disabled:hover{border-color:var(--line);color:var(--text)}
-  .pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;
-    padding:6px 14px;font-size:13px;color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:22px;
+    padding:8px 17px;font-size:16px;color:var(--dim);cursor:pointer;transition:.15s;font-family:inherit}
   .pill:hover{border-color:var(--red);color:var(--text)}
   .pill.active{background:var(--red);border-color:var(--red);color:#fff}
-  .inputs{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-  .inputs label{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
-  .inputs .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
+  .inputs{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+  .inputs label{display:flex;flex-direction:column;gap:8px;flex:1;min-width:170px}
+  .inputs .lbl{font-size:15px;color:var(--dim);letter-spacing:1px}
   .field{display:flex;align-items:center;background:var(--panel);
-    border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+    border:1px solid var(--line);border-radius:9px;padding:11px 14px}
   .field input{background:transparent;border:none;outline:none;color:var(--text);
-    font-size:16px;width:100%;font-family:ui-monospace,'SF Mono',Menlo,monospace}
-  .field .suffix{color:var(--dim);font-size:13px;margin-left:6px;white-space:nowrap}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-  .stat .k{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px}
-  .stat .v{font-size:18px;font-weight:600;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+    font-size:19px;width:100%;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+  .field .suffix{color:var(--dim);font-size:16px;margin-left:6px;white-space:nowrap}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+  .stat .k{font-size:14px;color:var(--dim);margin-bottom:8px;letter-spacing:1px}
+  .stat .v{font-size:23px;font-weight:600;font-family:ui-monospace,'SF Mono',Menlo,monospace}
   .v.red{color:var(--red)} .v.gold{color:var(--gold)}
-  .slider-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:14px 16px;margin-bottom:20px}
-  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:4px}
-  .slider-head .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
-  .slider-head .val{font-size:16px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
-  .slider-head .val small{color:var(--dim);font-size:13px;font-weight:400}
-  input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:28px}
-  .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:2px}
-  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 8px 8px}
-  .tabs{display:flex;gap:6px;margin:0 0 20px}
-  .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:8px;
-    padding:8px 10px;font-size:13px;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
+  .slider-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:17px 19px;margin-bottom:24px}
+  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:4px}
+  .slider-head .lbl{font-size:15px;color:var(--dim);letter-spacing:1px}
+  .slider-head .val{font-size:20px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+  .slider-head .val small{color:var(--dim);font-size:16px;font-weight:400}
+  input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:34px}
+  .ticks{display:flex;justify-content:space-between;font-size:14px;color:var(--dim);margin-top:4px}
+  .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:18px 10px 10px}
+  .tabs{display:flex;gap:8px;margin:0 0 24px}
+  .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:9px;
+    padding:11px 12px;font-size:16px;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
   .tab:hover{color:var(--text)}
   .tab.active{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
   #chart{width:100%;display:block;touch-action:none;cursor:crosshair}
-  .legend{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:6px 12px 8px}
-  .legend-items{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
-  .reroll-btn{background:transparent;border:1px solid var(--line);border-radius:6px;
-    color:var(--text);font-size:12px;padding:5px 10px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .legend{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:8px 14px 10px}
+  .legend-items{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;color:var(--dim)}
+  .reroll-btn{background:transparent;border:1px solid var(--line);border-radius:7px;
+    color:var(--text);font-size:15px;padding:7px 13px;cursor:pointer;white-space:nowrap;font-family:inherit}
   .reroll-btn:hover{border-color:var(--red);color:var(--red)}
-  .explainer{background:rgba(240,71,90,0.08);border:1px solid rgba(240,71,90,0.3);border-radius:10px;
-    padding:12px 14px;margin:0 8px 14px;font-size:12.5px;line-height:1.75;color:var(--text)}
-  .explainer .ttl{display:block;margin-bottom:6px;font-size:13px;font-weight:600}
-  .note{font-size:11px;color:var(--dim);margin-top:14px;line-height:1.6}
+  .explainer{background:rgba(240,71,90,0.08);border:1px solid rgba(240,71,90,0.3);border-radius:11px;
+    padding:15px 17px;margin:0 10px 16px;font-size:15.5px;line-height:1.75;color:var(--text)}
+  .explainer .ttl{display:block;margin-bottom:8px;font-size:17px;font-weight:600}
+  .note{font-size:14px;color:var(--dim);margin-top:16px;line-height:1.7}
   .note a{color:var(--dim)}
   #tip{position:fixed;pointer-events:none;background:var(--bg);border:1px solid var(--line);
-    border-radius:8px;padding:8px 10px;font-size:12px;display:none;z-index:10;
+    border-radius:9px;padding:10px 12px;font-size:15px;display:none;z-index:10;
     font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
 </style>
 </head>
@@ -144,7 +144,7 @@
       「卜瓦松過程」是一種很常拿來模擬「意外事件多久發生一次」的數學工具,原本用在像「一小時內平均會接到幾通電話」這種問題上。這裡拿它來決定「這個月會不會剛好發生一次市場大事件」,如果發生了,就隨機讓它是一次大漲或大跌。<br>
       把這種「偶發的大事件」疊加在每個月正常的小幅漲跌上,畫出來的線就會像真實股市一樣崎嶇不平——而不是教科書公式那種一路平滑向上的曲線。
     </div>
-    <svg id="chart" height="320" preserveAspectRatio="none"></svg>
+    <svg id="chart" height="360" preserveAspectRatio="none"></svg>
     <div class="legend">
       <div class="legend-items">
         <span><span style="color:#F0475A">━</span> <span id="legendValLabel">複利總值</span></span>
@@ -275,9 +275,9 @@ function render(){
 
 function drawChart(){
   const svg = $("chart");
-  const W = svg.clientWidth || 800, H = 320;
+  const W = svg.clientWidth || 800, H = 360;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const padL = 62, padR = 14, padT = 12, padB = 26;
+  const padL = 74, padR = 14, padT = 14, padB = 32;
   const iw = W-padL-padR, ih = H-padT-padB;
   const M = theoData.length-1;
   const maxY = (mode==='sim'
@@ -292,12 +292,12 @@ function drawChart(){
   for(let i=0;i<=4;i++){
     const v = maxY*i/4, yy = y(v);
     s += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#2A323C" stroke-dasharray="3 3"/>`;
-    s += `<text x="${padL-8}" y="${yy+4}" fill="#8B949E" font-size="11" text-anchor="end">${fmtShort(v)}</text>`;
+    s += `<text x="${padL-10}" y="${yy+5}" fill="#8B949E" font-size="14" text-anchor="end">${fmtShort(v)}</text>`;
   }
   // X 軸年標籤
   const yrStep = M>=240?60 : M>=120?24 : M>=48?12 : M>=12?6 : 1;
   for(let m=0;m<=M;m+=yrStep){
-    s += `<text x="${x(m)}" y="${H-8}" fill="#8B949E" font-size="11" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
+    s += `<text x="${x(m)}" y="${H-10}" fill="#8B949E" font-size="14" text-anchor="middle">${m%12===0&&m>0? m/12+"年" : m}</text>`;
   }
 
   const pInvested = data.map(d=>`${x(d.m)},${y(d.invested)}`).join(" ");
@@ -309,14 +309,14 @@ function drawChart(){
     <stop offset="100%" stop-color="#F0475A" stop-opacity="0"/></linearGradient></defs>`;
   if(mode==='sim'){
     const pTheo = theoData.map(d=>`${x(d.m)},${y(d.value)}`).join(" ");
-    s += `<polyline points="${pTheo}" fill="none" stroke="#8B949E" stroke-width="1.5" stroke-dasharray="2 5" opacity="0.9"/>`;
+    s += `<polyline points="${pTheo}" fill="none" stroke="#8B949E" stroke-width="2" stroke-dasharray="2 5" opacity="0.9"/>`;
   }
-  s += `<polyline points="${pInvested}" fill="none" stroke="#E8B448" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s += `<polyline points="${pInvested}" fill="none" stroke="#E8B448" stroke-width="2" stroke-dasharray="4 3"/>`;
   s += `<polygon points="${x(0)},${y(0)} ${pMain} ${x(M)},${y(0)}" fill="url(#g)"/>`;
-  s += `<polyline points="${pMain}" fill="none" stroke="#F0475A" stroke-width="2"/>`;
+  s += `<polyline points="${pMain}" fill="none" stroke="#F0475A" stroke-width="2.5"/>`;
   s += `<g id="hover" style="display:none">
-    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="#8B949E" stroke-width="1"/>
-    <circle id="hDot" r="4" fill="#F0475A"/></g>`;
+    <line id="hLine" y1="${padT}" y2="${padT+ih}" stroke="#8B949E" stroke-width="1.5"/>
+    <circle id="hDot" r="5" fill="#F0475A"/></g>`;
   svg.innerHTML = s;
   svg._geo = {x, y, padL, iw, M};
 }
