@@ -53,7 +53,7 @@
   input[type=range]{width:100%;accent-color:var(--red);cursor:grab;height:28px}
   .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:2px}
   .chart-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 8px 8px}
-  .tabs{display:flex;gap:6px;margin:0 8px 12px}
+  .tabs{display:flex;gap:6px;margin:0 0 20px}
   .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:8px;
     padding:8px 10px;font-size:13px;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
   .tab:hover{color:var(--text)}
@@ -78,6 +78,11 @@
 <div class="wrap">
   <div class="eyebrow">COMPOUND · 月複利</div>
   <h1>股票複利試算</h1>
+
+  <div class="tabs">
+    <button class="tab active" data-mode="theory">單純複利(理論)</button>
+    <button class="tab" data-mode="sim">模擬真實走勢(卜瓦松)</button>
+  </div>
 
   <div class="preset-row">
     <span class="cap">台股(僅供示意):</span>
@@ -133,10 +138,6 @@
   </div>
 
   <div class="chart-box">
-    <div class="tabs">
-      <button class="tab active" data-mode="theory">單純複利(理論)</button>
-      <button class="tab" data-mode="sim">模擬真實走勢(卜瓦松)</button>
-    </div>
     <div class="explainer" id="explainer" style="display:none">
       <span class="ttl">🎲 為什麼這張圖上上下下,不是一條平滑的線?</span>
       真實股市不會乖乖地每個月都照平均值上漲,而是「平常小漲小跌,偶爾來一次讓人嚇一跳的大漲或大跌」——像疫情崩盤、升息重挫、或財報利多噴出。<br>
